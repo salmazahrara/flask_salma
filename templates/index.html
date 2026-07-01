@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Prediction</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 40px auto; max-width: 700px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        .form-group { display: flex; flex-wrap: wrap; justify-content: space-between; }
+        .input-box { width: 48%; margin-bottom: 15px; }
+        .input-box.full { width: 100%; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #555; }
+        input[type="number"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background-color: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; background-color: #e2f0d9; border-left: 5px solid #28a745; font-weight: bold; text-align: center; color: #2b5717; border-radius: 4px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h2>Diabetes Prediction (Salma)</h2>
+    <form action="/predict" method="POST">
+        <div class="form-group">
+            <div class="input-box full">
+                <label>Model</label>
+                <select name="model_choice">
+                    <option value="decision_tree">Decision Tree</option>
+                </select>
+            </div>
+            
+            <div class="input-box">
+                <label>Pregnancies</label>
+                <input type="number" name="Pregnancies" step="any" required placeholder="0">
+            </div>
+            <div class="input-box">
+                <label>Glucose</label>
+                <input type="number" name="Glucose" step="any" required placeholder="120">
+            </div>
+            <div class="input-box">
+                <label>BloodPressure</label>
+                <input type="number" name="BloodPressure" step="any" required placeholder="80">
+            </div>
+            <div class="input-box">
+                <label>SkinThickness</label>
+                <input type="number" name="SkinThickness" step="any" required placeholder="20">
+            </div>
+            <div class="input-box">
+                <label>Insulin</label>
+                <input type="number" name="Insulin" step="any" required placeholder="79">
+            </div>
+            <div class="input-box">
+                <label>BMI</label>
+                <input type="number" name="BMI" step="any" required placeholder="32.0">
+            </div>
+            <div class="input-box">
+                <label>DiabetesPedigreeFunction</label>
+                <input type="number" name="DiabetesPedigreeFunction" step="any" required placeholder="0.375">
+            </div>
+            <div class="input-box">
+                <label>Age</label>
+                <input type="number" name="Age" step="any" required placeholder="25">
+            </div>
+        </div>
+        
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction_text %}
+        <div class="result">{{ prediction_text }}</div>
+    {% endif %}
+</body>
+</html>

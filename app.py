@@ -1,50 +1,56 @@
 from flask import Flask, render_template, request
 import pickle
-import numpy as np
+import pandas as pd
 
 app = Flask(__name__)
 
-# Memuat model dan scaler hasil training dari Jupyter Notebook
+# Memuat model (list berisi Decision Tree & SVC) dan scaler
 with open('model.pkl', 'rb') as f:
-    model = pickle.load(f)
+    model = pickle.load(f)  # Struktur: [Decision Tree, SVC]
 
 with open('scaler.pkl', 'rb') as f:
     scaler = pickle.load(f)
 
+model_names = ['Decision Tree', 'SVC']
+
 @app.route('/')
-def home():
-    return render_template('index.html')
+def index():
+    return render_template('index.html', model_names=model_names)
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Ambil nilai hanya dari input text/number, abaikan dropdown model jika tidak dipakai di python
-        # Kita ambil berdasarkan nama field yang dikirim dari form html
-        features = [
-            float(request.form['Pregnancies']),
-            float(request.form['Glucose']),
-            float(request.form['BloodPressure']),
-            float(request.form['SkinThickness']),
-            float(request.form['Insulin']),
-            float(request.form['BMI']),
-            float(request.form['DiabetesPedigreeFunction']),
-            float(request.form['Age'])
-        ]
+        # Menangkap data sesuai dengan name attribute di HTML
+        data = {
+            'Pregnancies': int(request.form['pregnancies']),
+            'Glucose': int(request.form['glucose']),
+            'BloodPressure': int(request.form['blood_pressure']),
+            'SkinThickness': int(request.form['skin_thickness']),
+            'Insulin': int(request.form['insulin']),
+            'BMI': float(request.form['bmi']),
+            'DiabetesPedigreeFunction': float(request.form['diabetes_pedigree']),
+            'Age': int(request.form['age'])
+        }
         
-        final_features = [np.array(features)]
-        
-        # Proses normalisasi data menggunakan scaler.pkl
-        scaled_features = scaler.transform(final_features)
-        
-        # Proses prediksi menggunakan model.pkl
-        prediction = model.predict(scaled_features)
-        
-        # Menentukan teks hasil berdasarkan output model (0 atau 1)
-        hasil = "Terindikasi Diabetes (1)" if prediction[0] == 1 else "Negatif / Sehat (0)"
-        
-        return render_template('index.html', prediction_text=f'Hasil Analisis Prediksi: {hasil}')
-    except Exception as e:
-        return render_template('index.html', prediction_text=f'Error saat memproses data: {str(e)}')
+        # Konversi ke DataFrame sesuai kebutuhan model
+        df = pd.DataFrame(data, index=[0])
+        X = scaler.transform(df)
 
-if __name__ == "__main__":
+        # Mengambil model pilihan user dari dropdown
+        selected_model_name = request.form['model']
+        model_index = model_names.index(selected_model_name)
+        clf = model[model_index]
+        
+        # Jalankan prediksi
+        y = clf.predict(X)
+        prediction = 'Diabetic' if int(y[0]) == 1 else 'Non-Diabetic'
+
+        return render_template('index.html', model_names=model_names, prediction=prediction)
+    
+    except Exception as e:
+        # Jika ada error, tampilkan pesan error di halaman web
+        error_msg = f"Error: {str(e)}"
+        return render_template('index.html', model_names=model_names, prediction=error_msg)
+
+if __name__ == '__main__':
     app.run(debug=True)
